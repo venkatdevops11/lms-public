@@ -16,7 +16,7 @@ pipeline {
         
         stage('Building the docker image') {
             steps {
-                sh 'cd api && docker build -t yvr522/lms .'
+                sh 'cd api && sudo docker build -t yvr522/lms .'
             }
         }
         stage('Logging into dockerhub account') {
