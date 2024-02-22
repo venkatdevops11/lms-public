@@ -21,29 +21,29 @@ pipeline {
         }
         stage('Logging into dockerhub account') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | sudo docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
             }
         }
         stage('pushing the docker image into dockerhub') {
             steps {
-                  sh 'docker push yvr522/lms'
+                  sh 'sudo docker push yvr522/lms'
             }
         }
         stage('Remove old docker images') {
              steps {
-                 sh 'docker rmi -f yvr522/lms'
+                 sh 'sudo docker rmi -f yvr522/lms'
             }
         }
          stage('creating database container') {
              steps {
-                 sh 'docker container rm --force lmsdb'
-                 sh 'docker run -d -p 5432:5432 -e  POSTGRES_PASSWORD=password --name lmsdb postgres'
+                 sh 'sudo docker container rm --force lmsdb'
+                 sh 'sudo docker run -d -p 5432:5432 -e  POSTGRES_PASSWORD=password --name lmsdb postgres'
             }
         }
          stage('Running the docker container') {
             steps {
-                  sh 'docker container rm --force backend'
-                  sh 'docker run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:password@lmsdb:5432/postgres --name backend -e PORT=8080 -e MODE=local  yvr522/lms'
+                  sh 'sudo docker container rm --force backend'
+                  sh 'sudo docker run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:password@lmsdb:5432/postgres --name backend -e PORT=8080 -e MODE=local  yvr522/lms'
             }
         }
     }
