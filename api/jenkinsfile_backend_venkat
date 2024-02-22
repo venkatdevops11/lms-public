@@ -42,7 +42,7 @@ pipeline {
           stage('Running the docker container') {
               steps {
 	            sh 'sudo docker container rm --force lms-be'
-                    sh 'sudo docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://postgres:$POSTGRES_CRED_PSW:5432/postgres --name lms-be $REPONAME:$BUILD_NUMBER'
+                    sh 'sudo docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://postgres:$POSTGRES_CRED_PSW@lms-db:5432/postgres --name lms-be $REPONAME:$BUILD_NUMBER'
                     }
                 }
         }
