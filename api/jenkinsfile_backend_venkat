@@ -1,50 +1,50 @@
 pipeline {
-   environment {
-     registry = "yvr522/lms"
-     DOCKER_CRED = credentials('dock_cred')
-     POSTGRES_CRED = credentials('postgres')
-     registryCredential = 'dock_cred'
-	 }
-   agent {
-     label 'docker'
-	  }
-   stages {
-     stage('Authenticating with the docker hub') {
-          steps {
-            sh 'echo "Authenticating with docker"'
-            sh 'echo $DOCKER_CRED_PSW | docker login -u $DOCKER_CRED_USR --password-stdin'
-                }
-          }
+    agent{
+       label 'docker'
+    }
 
-     stage('Build the docker image') {
-	  steps {
-	    sh 'echo "Building the docker image"'
-	    sh 'cd api && docker build -t yvr522/lms:${BUILD_NUMBER} .'
-		}
-	}	
-	  
-     stage('Pushing the docker image') {
-	    steps {
-	      sh 'docker push yvr522/lms:${BUILD_NUMBER}'
-	          }
-	}
-     stage('Removing older images') {
-	    steps {
-		    sh 'docker rmi -f yvr522/lms:${BUILD_NUMBER}'
-		  }
-	}
-	   
-     stage('Creating the database container') {
-	      steps {
-		    sh 'docker container rm -f lms-db'
-		    sh 'docker container run -d --name lms-db -p 5432:5432 -e POSTGRES_PASSWORD=$POSTGRES_CRED_PSW postgres'
-		    }
-		}
-	
-     stage('Running the docker container') {
-	      steps {
-		    sh 'docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://$POSTGRES_CRED_USR:$POSTGRES_CRED_PSW:5432/postgres --name lms-be yvr522/lms:${BUILD_NUMBER}'
-	            }
-	}
-   }
+    environment {
+
+    DOCKERHUB_CREDENTIALS = credentials('dock_cred')
+     registry = "yvr522/lms"
+        registryCredential = 'dock_cred'
+       
+    }
+
+    stages {
+        
+        
+        stage('Building the docker image') {
+            steps {
+                sh 'cd api && docker build -t yvr522/lms .'
+            }
+        }
+        stage('Logging into dockerhub account') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+            }
+        }
+        stage('pushing the docker image into dockerhub') {
+            steps {
+                  sh 'docker push yvr522/lms'
+            }
+        }
+        stage('Remove old docker images') {
+             steps {
+                 sh 'docker rmi -f yvr522/lms'
+            }
+        }
+         stage('creating database container') {
+             steps {
+                 sh 'docker container rm --force lmsdb'
+                 sh 'docker run -d -p 5432:5432 -e  POSTGRES_PASSWORD=password --name lmsdb postgres'
+            }
+        }
+         stage('Running the docker container') {
+            steps {
+                  sh 'docker container rm --force backend'
+                  sh 'docker run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:password@lmsdb:5432/postgres --name backend -e PORT=8080 -e MODE=local  yvr522/lms'
+            }
+        }
+    }
 }
