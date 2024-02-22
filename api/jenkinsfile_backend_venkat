@@ -1,8 +1,9 @@
 pipeline {
    environment {
-     REPONAME = "yvr522/lms"
+     registry = "yvr522/lms"
      DOCKER_CRED = credentials('dock_cred')
      POSTGRES_CRED = credentials('postgres')
+     registryCredential = 'dock_cred'
 	 }
    agent {
      label 'docker'
@@ -18,18 +19,18 @@ pipeline {
      stage('Build the docker image') {
 	  steps {
 	    sh 'echo "Building the docker image"'
-	    sh 'cd api && docker build -t $REPONAME:${BUILD_NUMBER} .'
+	    sh 'cd api && docker build -t yvr522/lms:${BUILD_NUMBER} .'
 		}
 	}	
 	  
      stage('Pushing the docker image') {
 	    steps {
-	      sh 'docker push $REPONAME:${BUILD_NUMBER}'
+	      sh 'docker push yvr522/lms:${BUILD_NUMBER}'
 	          }
 	}
      stage('Removing older images') {
 	    steps {
-		    sh 'docker rmi -f $REPONAME:${BUILD_NUMBER}'
+		    sh 'docker rmi -f yvr522/lms:${BUILD_NUMBER}'
 		  }
 	}
 	   
@@ -42,7 +43,7 @@ pipeline {
 	
      stage('Running the docker container') {
 	      steps {
-		    sh 'docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://$POSTGRES_CRED_USR:$POSTGRES_CRED_PSW:5432/postgres --name lms-be $REPONAME:${BUILD_NUMBER}'
+		    sh 'docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://$POSTGRES_CRED_USR:$POSTGRES_CRED_PSW:5432/postgres --name lms-be yvr522/lms:${BUILD_NUMBER}'
 	            }
 	}
    }
