@@ -11,7 +11,7 @@ pipeline {
      stage('Build the docker image') {
           steps {
             sh 'echo "Building the docker image"'
-            sh 'cd api && sudo docker build -t $REPONAME:$(BUILD_NUMBER) .'
+            sh 'cd api && sudo docker build -t $REPONAME:$BUILD_NUMBER .'
                 }
         }
      stage('Authenticating with the docker hub') {
@@ -23,12 +23,12 @@ pipeline {
 
           stage('Pushing the docker image') {
             steps {
-              sh 'sudo docker push $REPONAME:$(BUILD_NUMBER)'
+              sh 'sudo docker push $REPONAME:$BUILD_NUMBER'
                   }
            }
           stage('Removing older images') {
             steps {
-                    sh 'sudo docker rmi -f $REPONAME:$(BUILD_NUMBER)'
+                    sh 'sudo docker rmi -f $REPONAME:$BUILD_NUMBER'
                         }
                 }
 
@@ -42,7 +42,7 @@ pipeline {
           stage('Running the docker container') {
               steps {
 			        sh 'docker container rm --force backend'
-                    sh 'sudo docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://$POSTGRES_CRED_USR:$POSTGRES_CRED_PSW:5432/postgres --name lms-be $REPONAME:$(BUILD_NUMBER)'
+                    sh 'sudo docker run -d -p 8080:8080 -e MODE=production -e DATABASE_URL=postgresql://$POSTGRES_CRED_USR:$POSTGRES_CRED_PSW:5432/postgres --name lms-be $REPONAME:$BUILD_NUMBER'
                     }
                 }
         }
