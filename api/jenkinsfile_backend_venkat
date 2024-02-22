@@ -31,17 +31,17 @@ pipeline {
                         }
                 }
 
-          stage('Creating the database container') {
-              steps {
-                    sh 'sudo docker container rm -f lms-db'
-                    sh 'sudo docker container run -d --name lms-db -p 5432:5432 -e POSTGRES_PASSWORD=welcome1 postgres'
-                    }
-                }
+         // stage('Creating the database container') {
+            //  steps {
+                 //   sh 'sudo docker container rm -f lms-db'
+                 //   sh 'sudo docker container run -d --name lms-db -p 5432:5432 -e POSTGRES_PASSWORD=welcome1 postgres'
+             //       }
+           //     }
 
           stage('Running the docker container') {
               steps {
 	            sh 'sudo docker container rm --force lms-be'
-                    sh 'sudo docker run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:welcome1@lms-db:5432/postgres --name lms-be -e PORT=8080 -e MODE=local $REPONAME:$BUILD_NUMBER'
+                    sh 'sudo docker run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:welcome1@172.17.0.2:5432/postgres --name lms-be -e PORT=8080 -e MODE=local $REPONAME:$BUILD_NUMBER'
                     }
                 }
         }
