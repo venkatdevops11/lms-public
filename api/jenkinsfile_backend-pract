@@ -4,7 +4,7 @@ pipeline {
         }
   environment {
      DOCKERHUB_CREDENTIALS = credentials('dockeruser')
-     REPO_NAME = yvr522/lms-backend
+     REPO_NAME = "yvr522/lms-backend"
               }
   stages {
       stage("Create docker image from file") {
