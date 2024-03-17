@@ -28,7 +28,7 @@ pipeline {
             sh 'docker rmi -f $REPO_NAME:v${BUILD_NUMBER}'
                }
          }
-      stage("Creating backend container") {
+      stage("Creating backend containers") {
          steps {
             sh 'docker container rm --force lms-backend'
             sh 'docker container run -d -p 8080:8080 -e DATABASE_URL=postgresql://postgres:welcome1@34.16.36.19:5432/postgres -e MODE=prod -e PORT=8080 --name lms-backend $REPO_NAME:v${BUILD_NUMBER}'
